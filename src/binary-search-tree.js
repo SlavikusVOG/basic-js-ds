@@ -82,46 +82,67 @@ class BinarySearchTree {
 	  return found;
   }
 
-  remove(data) {
-	  let node = this.treeRoot;
-	  let prev;
-	  let nodeBranch;
-	  while(node) {
-		if (node.data === data) {
-			if (prev) {
-				prev[nodeBranch] = null;
-			}
-			else {
-				this.treeRoot = new Node();
-			}
+remove(data) {
+	const removeNode = (node, data) => {
+		if (!node) {
+			return null;
 		}
-		else if (node.data > data) {
-			prev = node;
-			nodeBranch = "left";
-			node = node.left;
+
+		if (node.data > data) {
+			node.left = removeNode(node.left, data);
+			return node;
 		}
 		else if (node.data < data) {
-			prev = node;
-			nodeBranch = "right"
-			node = node.right;
+			node.right = removeNode(node.right, data);
+			return node;
+		}
+		else {
+			if (!node.left && !node.right) {
+			  return null;
+			}
+			if (!node.left) {
+			  node = node.right;
+			  return node;
+			}
+			if (!node.right) {
+				node = node.left;
+				return node;
+			}
+			let minFromRight = node.right;
+			while (minFromRight.left) {
+				minFromRight = minFromRight.left;
+			}
+			node.data = minFromRight.data;
+			node.right = removeNode(node.right, minFromRight.data);
+			return node;
 		}
 	}
-  }
+
+	this.treeRoot = removeNode(this.treeRoot, data);
+}
 
   min() {
 	  let node = this.treeRoot;
-	  while(node.left) {
-		  node = node.left;
-	  }
-	  return node.data;
+	  const leafArray = [];
+	  this.getAllLeafs(node, leafArray)
+	return Math.min(...leafArray);
   }
 
   max() {
-	  let node = this.treeRoot;
-	  while(node.right) {
-		  node = node.right;
-	  }
-	  return node.data;
+	let node = this.treeRoot;
+	const leafArray = [];
+	this.getAllLeafs(node, leafArray);
+	return Math.max(...leafArray);
+  }
+
+  getAllLeafs(node, leafArray) {
+	if(node.left) {
+		this.getAllLeafs(node.left, leafArray);
+	}
+	if(node.right) {
+		this.getAllLeafs(node.right,leafArray);
+	}
+	leafArray.push(node.data);
   }
 }
 
